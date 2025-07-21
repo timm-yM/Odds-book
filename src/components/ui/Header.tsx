@@ -1,93 +1,117 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, User, Crown } from 'lucide-react';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-white/10">
-      <nav className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <Crown className="h-8 w-8 text-cyan-400" />
-            <span className="text-2xl font-bold gradient-text">ODDSBOOK</span>
+            <div className="text-2xl font-bold gradient-text">ODDSBOOK</div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-white hover:text-cyan-400 transition-colors">
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link 
+              to="/" 
+              className="text-white hover:text-blue-400 transition-colors font-medium"
+            >
               Home
             </Link>
-            <Link to="/pricing" className="text-white hover:text-cyan-400 transition-colors">
+            {user && (
+              <>
+                <Link 
+                  to="/odds" 
+                  className="text-white hover:text-blue-400 transition-colors font-medium"
+                >
+                  Odds
+                </Link>
+                <Link 
+                  to="/parlay" 
+                  className="text-white hover:text-blue-400 transition-colors font-medium"
+                >
+                  Parlay
+                </Link>
+              </>
+            )}
+            <Link 
+              to="/pricing" 
+              className="text-white hover:text-blue-400 transition-colors font-medium"
+            >
               Pricing
             </Link>
-            <Link to="/odds" className="text-white hover:text-cyan-400 transition-colors">
-              Odds
-            </Link>
-            <Link to="/parlay" className="text-white hover:text-cyan-400 transition-colors">
-              Parlay Tips
-            </Link>
-            <Link to="/about" className="text-white hover:text-cyan-400 transition-colors">
+            <Link 
+              to="/about" 
+              className="text-white hover:text-blue-400 transition-colors font-medium"
+            >
               About
             </Link>
-          </div>
+            <Link 
+              to="/contact" 
+              className="text-white hover:text-blue-400 transition-colors font-medium"
+            >
+              Contact
+            </Link>
+          </nav>
 
-          {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="sm" className="text-white hover:text-cyan-400 hover:bg-cyan-400/10">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
-            <Button size="sm" className="bg-gradient-primary hover:bg-gradient-hover text-white">
-              Get Started
-            </Button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white hover:text-cyan-400"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-white/10">
-            <div className="flex flex-col space-y-4 pt-4">
-              <Link to="/" className="text-white hover:text-cyan-400 transition-colors">
-                Home
-              </Link>
-              <Link to="/pricing" className="text-white hover:text-cyan-400 transition-colors">
-                Pricing
-              </Link>
-              <Link to="/odds" className="text-white hover:text-cyan-400 transition-colors">
-                Odds
-              </Link>
-              <Link to="/parlay" className="text-white hover:text-cyan-400 transition-colors">
-                Parlay Tips
-              </Link>
-              <Link to="/about" className="text-white hover:text-cyan-400 transition-colors">
-                About
-              </Link>
-              <div className="flex flex-col space-y-2 pt-4 border-t border-white/10">
-                <Button variant="ghost" size="sm" className="text-white hover:text-cyan-400 hover:bg-cyan-400/10 justify-start">
-                  <User className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-                <Button size="sm" className="bg-gradient-primary hover:bg-gradient-hover text-white">
-                  Get Started
+          {/* Auth Section */}
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 text-white">
+                  <User className="h-4 w-4" />
+                  <span className="text-sm">
+                    {user.email}
+                    {isAdmin && <span className="ml-1 text-yellow-400">(Admin)</span>}
+                  </span>
+                </div>
+                <Button
+                  onClick={handleSignOut}
+                  variant="outline"
+                  size="sm"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
                 </Button>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link to="/auth">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/20 text-white hover:bg-white/10"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-primary hover:opacity-90"
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
-        )}
-      </nav>
+        </div>
+      </div>
     </header>
   );
 };
