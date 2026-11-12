@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  ODDSBOOK design tokens.
+  Palette intent: a deep charcoal-navy surface (not pure #000), a single
+  confident action color (green, the "you're getting paid" color a
+  marketplace should use) and a gold accent reserved for official /
+  premium signals. No purple-blue gradients, no glassmorphism.
+*/
+@layer base {
+  :root {
+    --background: 220 18% 7%;
+    --surface: 220 16% 10%;
+    --surface-2: 220 15% 14%;
+    --surface-3: 220 13% 20%;
+    --foreground: 210 24% 96%;
+
+    --muted: 220 14% 16%;
+    --muted-foreground: 216 12% 62%;
+
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 210 24% 96%;
+
+    --primary: 152 74% 40%;
+    --primary-hover: 152 74% 34%;
+    --primary-foreground: 220 20% 6%;
+
+    --gold: 37 91% 55%;
+    --gold-foreground: 220 20% 6%;
+
+    --success: 152 68% 45%;
+    --danger: 0 78% 62%;
+    --warning: 37 91% 55%;
+
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 152 74% 40%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image: radial-gradient(hsl(var(--surface-3) / 0.5) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Flat, bordered surface card - replaces the old blurred "glass" card */
+  .surface-card {
+    @apply rounded-lg border border-border bg-surface;
+  }
+
+  .surface-card-hover {
+    @apply surface-card transition-colors duration-150 hover:border-primary/50 hover:bg-surface-2;
+  }
+
+  /* Odds figure styling - monospace tabular numerals, like a sportsbook slip */
+  .odds-figure {
+    @apply font-mono tabular font-semibold;
+  }
+
+  /* Status chips, scoreboard style: solid fill, square-ish corners, no gradients */
+  .status-chip {
+    @apply inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 text-xs font-semibold uppercase tracking-wide;
+  }
+  .status-chip-upcoming { @apply status-chip bg-surface-3 text-foreground; }
+  .status-chip-won { @apply status-chip bg-success/15 text-success; }
+  .status-chip-lost { @apply status-chip bg-danger/15 text-danger; }
+  .status-chip-void { @apply status-chip bg-muted text-muted-foreground; }
+  .status-chip-postponed { @apply status-chip bg-warning/15 text-warning; }
+
+  .official-badge {
+    @apply inline-flex items-center gap-1 rounded-sm bg-gold/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-gold;
+  }
+
+  .live-dot {
+    @apply inline-block h-1.5 w-1.5 rounded-full bg-danger animate-pulse-live;
+  }
+}
+
+/* Scrollbar - dark, thin, matches surface tones instead of default OS chrome */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--surface-3)); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }

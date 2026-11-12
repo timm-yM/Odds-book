@@ -1,0 +1,99 @@
+# Deploying ODDSBOOK
+
+Stack: **MongoDB Atlas** (database) → **Render** (backend API) → **Vercel** (frontend).
+
+## 1. Database — MongoDB Atlas
+
+1. Create a free cluster at https://cloud.mongodb.com.
+2. Database Access → add a user with a strong password.
+3. Network Access → allow `0.0.0.0/0` (or Render's static IPs if you upgrade later).
+4. Copy the connection string, e.g.
+   `mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/oddsbook`
+
+## 2. Backend — Render
+
+1. Push this repo to GitHub (see the git flow below) — Render deploys from a repo.
+2. In Render: **New → Blueprint**, point it at your repo. It will read `render.yaml`
+   at the repo root and create the `oddsbook-api` web service with `rootDir: backend`.
+   (No blueprint? Create a **Web Service** manually with the same settings:
+   Root directory `backend`, Build command `npm install && npm run build`,
+   Start command `npm start`.)
+3. Set the environment variables Render's dashboard prompts for (marked `sync: false`
+   in `render.yaml`): `MONGO_URI` (from Atlas), `CLIENT_URL` (your Vercel URL — you
+   can update this after step 3 deploys), `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`,
+   and `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` if you're using Stripe.
+4. Deploy. Note the resulting URL, e.g. `https://oddsbook-api.onrender.com`.
+5. Seed your master admin account once, from your local machine, pointed at the
+   production database:
+   ```bash
+   cd backend
+   MONGO_URI="<your Atlas URI>" ADMIN_EMAIL="you@example.com" ADMIN_PASSWORD="..." npm run seed:admin
+   ```
+
+## 3. Frontend — Vercel
+
+1. In Vercel: **New Project**, import the same repo, set **Root Directory** to `frontend`.
+2. Framework preset: Vite. Build command `npm run build`, output directory `dist`
+   (already declared in `frontend/vercel.json`).
+3. Add environment variable `VITE_API_URL` = `https://oddsbook-api.onrender.com/api`
+   (your Render URL + `/api`).
+4. Deploy. Note the resulting URL, e.g. `https://oddsbook.vercel.app`.
+5. Back in Render, update the backend's `CLIENT_URL` env var to that Vercel URL
+   and redeploy the backend (CORS is locked to this origin).
+
+## 4. Stripe (optional)
+
+Leave `STRIPE_SECRET_KEY` blank to keep paid checkout in demo mode (purchases
+complete instantly, no card required — good for testing). To go live:
+
+1. Get your secret key from the Stripe dashboard → set `STRIPE_SECRET_KEY` on Render.
+2. Add a webhook endpoint in Stripe pointing to
+   `https://oddsbook-api.onrender.com/api/payments/webhook`, listening for
+   `checkout.session.completed`. Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
+3. Redeploy the backend.
+
+---
+
+## Git workflow — pushing your changes
+
+If this is the first push (repo not yet on GitHub):
+
+```bash
+cd oddsbook
+git init
+git add .
+git commit -m "Initial commit: ODDSBOOK marketplace (backend + frontend)"
+git branch -M main
+git remote add origin https://github.com/<your-username>/<your-repo>.git
+git push -u origin main
+```
+
+If you already have a GitHub repo connected to Render/Vercel, your day-to-day flow
+is just:
+
+```bash
+git add .
+git commit -m "Describe what changed"
+git push
+```
+
+Both Render and Vercel are connected to auto-deploy on push to `main` by default —
+pushing triggers a new build on each automatically. If you're working on something
+riskier, push to a branch and open a PR first:
+
+```bash
+git checkout -b feature/my-change
+git add .
+git commit -m "Add my change"
+git push -u origin feature/my-change
+```
+
+Vercel will build a preview deployment for that branch/PR automatically; merge
+the PR into `main` when you're happy, and both services redeploy from `main`.
+
+### Rolling back
+
+- **Vercel**: Project → Deployments → find the last good deployment → "Promote to
+  Production".
+- **Render**: Service → Events/Deploys tab → "Rollback" to a previous deploy, or
+  `git revert <commit>` and push.
