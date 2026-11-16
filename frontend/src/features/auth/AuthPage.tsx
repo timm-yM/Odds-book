@@ -1,6 +1,5 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { TrendingUp } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,9 +27,7 @@ export function AuthPage() {
     <div className="container flex min-h-[80vh] items-center justify-center py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <TrendingUp size={20} strokeWidth={2.75} />
-          </span>
+          <img src="/logo.png" alt="ODDSBOOK" className="mb-3 h-14 w-14" width={56} height={56} />
           <h1 className="text-xl font-bold">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === 'login' ? 'Sign in to buy, sell and track picks.' : 'Buy or sell picks in a couple of minutes.'}

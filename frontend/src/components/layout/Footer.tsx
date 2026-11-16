@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -7,9 +6,7 @@ export function Footer() {
       <div className="container grid grid-cols-2 gap-8 py-12 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <TrendingUp size={14} strokeWidth={2.75} />
-            </span>
+            <img src="/logo-sm.png" alt="" className="h-7 w-7" width={28} height={28} />
             ODDSBOOK
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">

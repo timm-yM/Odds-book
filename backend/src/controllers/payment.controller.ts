@@ -1,30 +1,35 @@
 import { Request, Response } from 'express';
 import { Order } from '../models/Order';
-import { Pick } from '../models/Pick';
-import { User } from '../models/User';
-import { constructWebhookEvent } from '../services/stripe.service';
 import { asyncHandler } from '../utils/asyncHandler';
+import { env } from '../config/env';
+import { reconcileOrder } from '../services/order.service';
 
-export const stripeWebhook = asyncHandler(async (req: Request, res: Response) => {
-  const signature = req.headers['stripe-signature'] as string;
-
-  let event;
-  try {
-    event = constructWebhookEvent(req.body, signature);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid signature';
-    return res.status(400).send(`Webhook Error: ${message}`);
+/**
+ * Pay Hero posts the payment result here after the customer enters (or cancels) their M-Pesa PIN.
+ * We do NOT trust the body: we only use it to find the order, then re-verify with Pay Hero's
+ * transaction-status endpoint. Always answers 200 so Pay Hero does not keep retrying.
+ */
+export const payheroCallback = asyncHandler(async (req: Request, res: Response) => {
+  if (!env.payheroCallbackSecret || req.query.token !== env.payheroCallbackSecret) {
+    return res.status(401).json({ received: false });
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as { id: string };
-    const order = await Order.findOne({ stripeSessionId: session.id });
+  const payload = (req.body ?? {}) as Record<string, any>;
+  const inner = (payload.response ?? payload) as Record<string, any>;
+  const externalRef = inner.ExternalReference ?? inner.external_reference;
+  const checkoutId = inner.CheckoutRequestID;
+  const reference = inner.reference;
 
-    if (order && order.status !== 'completed') {
-      order.status = 'completed';
-      await order.save();
-      await Pick.findByIdAndUpdate(order.pick, { $inc: { purchaseCount: 1 } });
-      await User.findByIdAndUpdate(order.seller, { $inc: { walletBalance: order.sellerPayout } });
+  const order =
+    (externalRef && (await Order.findById(String(externalRef)).catch(() => null))) ||
+    (reference && (await Order.findOne({ payheroReference: String(reference) }))) ||
+    (checkoutId && (await Order.findOne({ checkoutRequestId: String(checkoutId) })));
+
+  if (order) {
+    try {
+      await reconcileOrder(order);
+    } catch (err) {
+      console.error('[payhero] callback reconcile failed', err);
     }
   }
 

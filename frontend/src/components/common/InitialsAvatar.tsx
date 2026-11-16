@@ -19,7 +19,7 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function InitialsAvatar({ name, color = '#1DBF73', size = 'md', className }: InitialsAvatarProps) {
+export function InitialsAvatar({ name, color = '#00A8FF', size = 'md', className }: InitialsAvatarProps) {
   return (
     <div
       className={cn(

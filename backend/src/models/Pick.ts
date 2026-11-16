@@ -42,7 +42,7 @@ const pickSchema = new Schema<IPick>(
     confidence: { type: Number, min: 1, max: 5, default: 3 },
     analysis: { type: String, default: '', maxlength: 4000 },
     price: { type: Number, required: true, min: 0, default: 0 },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: 'KES' },
     status: {
       type: String,
       enum: ['upcoming', 'won', 'lost', 'void', 'postponed'],

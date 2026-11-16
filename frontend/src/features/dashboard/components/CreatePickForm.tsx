@@ -21,7 +21,7 @@ const EMPTY: PickInput = {
   confidence: 3,
   analysis: '',
   price: 0,
-  currency: 'USD',
+  currency: 'KES',
 };
 
 export function CreatePickForm({ onCreated }: { onCreated?: () => void }) {
@@ -149,15 +149,15 @@ export function CreatePickForm({ onCreated }: { onCreated?: () => void }) {
       </div>
 
       <div>
-        <Label htmlFor="price">Price (USD — set 0 for a free pick)</Label>
+        <Label htmlFor="price">Price (KES — whole shillings, 0 for a free pick)</Label>
         <Input
           id="price"
           type="number"
           min={0}
-          step="0.5"
+          step="1"
           required
           value={form.price}
-          onChange={(e) => update('price', parseFloat(e.target.value))}
+          onChange={(e) => update('price', parseInt(e.target.value, 10) || 0)}
           className="mt-1.5"
         />
       </div>

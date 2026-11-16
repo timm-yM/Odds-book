@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { stripeWebhook } from '../controllers/payment.controller';
+import { payheroCallback } from '../controllers/payment.controller';
 
 const router = Router();
 
-router.post('/webhook', stripeWebhook);
+router.post('/payhero/callback', payheroCallback);
 
 export default router;

@@ -17,8 +17,8 @@ const pickInputSchema = z.object({
   odds: z.coerce.number().min(1.01).max(1000),
   confidence: z.coerce.number().min(1).max(5).optional(),
   analysis: z.string().max(4000).optional(),
-  price: z.coerce.number().min(0).max(10000),
-  currency: z.string().length(3).optional(),
+  price: z.coerce.number().int('Price must be a whole number of KES').min(0).max(150000),
+  currency: z.literal('KES').optional(),
 });
 
 const statusSchema = z.object({

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { InitialsAvatar } from '@/components/common/InitialsAvatar';
 import { StatusChip } from '@/components/common/StatusChip';
-import { PriceTag } from '@/components/common/PriceTag';
+import { PriceTag, formatKES } from '@/components/common/PriceTag';
 import { MyPickRow } from './components/MyPickRow';
 
 export function DashboardPage() {
@@ -93,7 +93,7 @@ export function DashboardPage() {
                 <div className="surface-card p-5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total earned</p>
                   <p className="mt-1 font-display text-2xl font-bold tabular text-primary">
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(sales.data?.totalRevenue ?? 0)}
+                    {formatKES(sales.data?.totalRevenue ?? 0)}
                   </p>
                 </div>
                 <div className="surface-card p-5">

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -13,16 +13,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { InitialsAvatar } from '@/components/common/InitialsAvatar';
 import { StarRating } from '@/components/common/StarRating';
 import { StatusChip } from '@/components/common/StatusChip';
-import { PriceTag } from '@/components/common/PriceTag';
+import { PriceTag, formatKES } from '@/components/common/PriceTag';
+import { MpesaPayModal } from './components/MpesaPayModal';
 import { SportTag } from '@/components/common/SportTag';
 
 export function PickDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [buying, setBuying] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
@@ -32,17 +33,6 @@ export function PickDetailPage() {
     queryFn: () => picksApi.get(id!),
     enabled: Boolean(id),
   });
-
-  useEffect(() => {
-    const checkout = searchParams.get('checkout');
-    if (checkout === 'success') {
-      toast.success('Payment confirmed — refreshing your pick…');
-      queryClient.invalidateQueries({ queryKey: ['picks', 'detail', id] });
-    } else if (checkout === 'cancelled') {
-      toast.info('Checkout cancelled — you have not been charged.');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -60,20 +50,22 @@ export function PickDetailPage() {
   const seller = typeof pick.seller === 'string' ? null : pick.seller;
   const isOwner = seller?._id === user?._id;
 
+  const refreshPick = () => queryClient.invalidateQueries({ queryKey: ['picks', 'detail', id] });
+
   const handleBuy = async () => {
     if (!user) {
       navigate('/auth', { state: { from: `/picks/${id}` } });
       return;
     }
+    if (pick.price > 0) {
+      setPayOpen(true); // paid pick -> M-Pesa STK push flow
+      return;
+    }
     setBuying(true);
     try {
-      const result = await ordersApi.checkout(pick._id);
-      if (result.redirect && result.url) {
-        window.location.href = result.url;
-        return;
-      }
-      toast.success(pick.price === 0 ? 'Pick unlocked!' : 'Purchase complete — pick unlocked!');
-      queryClient.invalidateQueries({ queryKey: ['picks', 'detail', id] });
+      await ordersApi.checkout(pick._id);
+      toast.success('Pick unlocked!');
+      refreshPick();
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -132,7 +124,7 @@ export function PickDetailPage() {
                   </p>
                 </div>
                 <Button size="lg" onClick={handleBuy} disabled={buying}>
-                  {buying ? 'Processing…' : `Unlock for ${new Intl.NumberFormat('en-US', { style: 'currency', currency: pick.currency }).format(pick.price)}`}
+                  {buying ? 'Processing…' : `Unlock with M-Pesa · ${formatKES(pick.price)}`}
                 </Button>
               </div>
             ) : (
@@ -218,6 +210,19 @@ export function PickDetailPage() {
           )}
         </div>
       </div>
+
+      <MpesaPayModal
+        open={payOpen}
+        pickId={pick._id}
+        amount={pick.price}
+        title={`${pick.homeTeam} vs ${pick.awayTeam} · ${pick.market}`}
+        onClose={() => setPayOpen(false)}
+        onPaid={() => {
+          setPayOpen(false);
+          toast.success('Payment confirmed — pick unlocked!');
+          refreshPick();
+        }}
+      />
     </div>
   );
 }

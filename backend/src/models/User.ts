@@ -19,7 +19,7 @@ export interface IUser extends Document {
   comparePassword(candidate: string): Promise<boolean>;
 }
 
-const AVATAR_PALETTE = ['#1DBF73', '#F5A623', '#4E7CFF', '#FF5A5F', '#9B5DE5', '#00C2D1'];
+const AVATAR_PALETTE = ['#00A8FF', '#F5A623', '#2F6BFF', '#FF5A5F', '#7C5CFF', '#00D0C4'];
 
 const userSchema = new Schema<IUser>(
   {

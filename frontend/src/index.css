@@ -5,27 +5,26 @@
 /*
   ODDSBOOK design tokens.
   Palette intent: a deep charcoal-navy surface (not pure #000), a single
-  confident action color (green, the "you're getting paid" color a
-  marketplace should use) and a gold accent reserved for official /
+  confident action color (electric blue, lifted from the ODDSBOOK logo) and a gold accent reserved for official /
   premium signals. No purple-blue gradients, no glassmorphism.
 */
 @layer base {
   :root {
-    --background: 220 18% 7%;
-    --surface: 220 16% 10%;
-    --surface-2: 220 15% 14%;
-    --surface-3: 220 13% 20%;
+    --background: 222 24% 6%;
+    --surface: 222 22% 9%;
+    --surface-2: 222 20% 13%;
+    --surface-3: 222 18% 19%;
     --foreground: 210 24% 96%;
 
-    --muted: 220 14% 16%;
+    --muted: 222 18% 15%;
     --muted-foreground: 216 12% 62%;
 
-    --secondary: 220 14% 16%;
+    --secondary: 222 18% 15%;
     --secondary-foreground: 210 24% 96%;
 
-    --primary: 152 74% 40%;
-    --primary-hover: 152 74% 34%;
-    --primary-foreground: 220 20% 6%;
+    --primary: 199 100% 50%;
+    --primary-hover: 205 100% 44%;
+    --primary-foreground: 222 30% 5%;
 
     --gold: 37 91% 55%;
     --gold-foreground: 220 20% 6%;
@@ -34,9 +33,9 @@
     --danger: 0 78% 62%;
     --warning: 37 91% 55%;
 
-    --border: 220 13% 20%;
-    --input: 220 13% 20%;
-    --ring: 152 74% 40%;
+    --border: 222 18% 19%;
+    --input: 222 18% 19%;
+    --ring: 199 100% 50%;
 
     --radius: 0.5rem;
   }
@@ -106,3 +105,6 @@
 ::-webkit-scrollbar-track { background: hsl(var(--background)); }
 ::-webkit-scrollbar-thumb { background: hsl(var(--surface-3)); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+/* M-Pesa green - used only on the payment button/modal, never as a theme colour */
+:root { --mpesa: 142 70% 38%; }

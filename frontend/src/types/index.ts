@@ -48,7 +48,7 @@ export interface Review {
 }
 
 export type OrderStatus = 'completed' | 'pending' | 'failed' | 'refunded';
-export type PaymentMethod = 'free' | 'stripe' | 'manual';
+export type PaymentMethod = 'free' | 'mpesa' | 'manual';
 
 export interface Order {
   _id: string;

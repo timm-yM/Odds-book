@@ -17,8 +17,13 @@ export const env = {
   jwtSecret: required('JWT_SECRET', 'dev-only-secret-change-me'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:5173',
-  stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
-  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
+  // Public URL of THIS API (Render URL in production). Pay Hero posts payment results here.
+  apiUrl: (process.env.API_URL ?? `http://localhost:${process.env.PORT ?? '5000'}`).replace(/\/$/, ''),
+  // Pay Hero (M-Pesa STK Push) - https://docs.payhero.co.ke
+  payheroUsername: process.env.PAYHERO_API_USERNAME ?? '',
+  payheroPassword: process.env.PAYHERO_API_PASSWORD ?? '',
+  payheroChannelId: parseInt(process.env.PAYHERO_CHANNEL_ID ?? '0', 10),
+  payheroCallbackSecret: process.env.PAYHERO_CALLBACK_SECRET ?? '',
   platformFeePercent: parseFloat(process.env.PLATFORM_FEE_PERCENT ?? '15'),
   adminEmail: process.env.ADMIN_EMAIL ?? '',
   adminPassword: process.env.ADMIN_PASSWORD ?? '',
@@ -26,4 +31,4 @@ export const env = {
 };
 
 export const isProd = env.nodeEnv === 'production';
-export const isStripeEnabled = Boolean(env.stripeSecretKey);
+export const isPayHeroEnabled = Boolean(env.payheroUsername && env.payheroPassword && env.payheroChannelId);

@@ -60,6 +60,7 @@ export default {
           foreground: 'hsl(var(--foreground))',
         },
         success: 'hsl(var(--success))',
+        mpesa: 'hsl(var(--mpesa))',
         danger: 'hsl(var(--danger))',
         warning: 'hsl(var(--warning))',
       },

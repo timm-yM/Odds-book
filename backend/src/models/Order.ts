@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export type OrderStatus = 'completed' | 'pending' | 'failed' | 'refunded';
-export type PaymentMethod = 'free' | 'stripe' | 'manual';
+export type PaymentMethod = 'free' | 'mpesa' | 'manual';
 
 export interface IOrder extends Document {
   _id: Types.ObjectId;
@@ -14,7 +14,11 @@ export interface IOrder extends Document {
   currency: string;
   status: OrderStatus;
   paymentMethod: PaymentMethod;
-  stripeSessionId?: string;
+  phoneNumber?: string;
+  payheroReference?: string;
+  checkoutRequestId?: string;
+  mpesaReceipt?: string;
+  failureReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,10 +31,14 @@ const orderSchema = new Schema<IOrder>(
     amount: { type: Number, required: true, min: 0 },
     platformFee: { type: Number, required: true, default: 0 },
     sellerPayout: { type: Number, required: true, default: 0 },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: 'KES' },
     status: { type: String, enum: ['completed', 'pending', 'failed', 'refunded'], default: 'pending' },
-    paymentMethod: { type: String, enum: ['free', 'stripe', 'manual'], required: true },
-    stripeSessionId: { type: String },
+    paymentMethod: { type: String, enum: ['free', 'mpesa', 'manual'], required: true },
+    phoneNumber: { type: String },
+    payheroReference: { type: String, index: true },
+    checkoutRequestId: { type: String },
+    mpesaReceipt: { type: String },
+    failureReason: { type: String },
   },
   { timestamps: true }
 );

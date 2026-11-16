@@ -19,10 +19,16 @@ services:
         value: 7d
       - key: CLIENT_URL
         sync: false
-      - key: STRIPE_SECRET_KEY
+      - key: API_URL
         sync: false
-      - key: STRIPE_WEBHOOK_SECRET
+      - key: PAYHERO_API_USERNAME
         sync: false
+      - key: PAYHERO_API_PASSWORD
+        sync: false
+      - key: PAYHERO_CHANNEL_ID
+        sync: false
+      - key: PAYHERO_CALLBACK_SECRET
+        generateValue: true
       - key: PLATFORM_FEE_PERCENT
         value: 15
       - key: ADMIN_NAME

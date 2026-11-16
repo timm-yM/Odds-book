@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Shield, TrendingUp, Menu, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Shield, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -27,9 +27,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <TrendingUp size={16} strokeWidth={2.75} />
-          </span>
+          <img src="/logo-sm.png" alt="" className="h-8 w-8" width={32} height={32} />
           ODDSBOOK
         </Link>
 

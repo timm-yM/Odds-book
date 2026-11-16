@@ -24,12 +24,11 @@ app.use(morgan(isProd ? 'combined' : 'dev'));
 const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 app.use('/api', apiLimiter);
 
-// Stripe webhook needs the raw request body to verify the signature, so it is
-// mounted BEFORE the JSON body parser below and given its own express.raw().
-app.use('/api/payments', express.raw({ type: 'application/json' }), paymentRoutes);
-
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+
+// Pay Hero payment callback (secured with a secret token in the URL)
+app.use('/api/payments', paymentRoutes);
 
 app.use('/api', apiRouter);
 
