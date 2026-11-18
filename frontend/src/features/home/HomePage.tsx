@@ -10,12 +10,12 @@ const STEPS = [
   {
     icon: Search,
     title: 'Browse the board',
-    body: 'Filter picks by sport, league or price. See the match, market and odds before you spend a cent.',
+    body: 'Filter by sport or price. See the odds and bookmaker before you spend a shilling, then unlock the slip or booking code.',
   },
   {
     icon: Wallet,
     title: 'Buy what you trust',
-    body: 'Free picks unlock instantly. Paid picks are billed per pick — no subscriptions, no lock-in.',
+    body: 'Free picks unlock instantly. Paid picks cost a few shillings and you pay with M-Pesa in seconds. No subscriptions.',
   },
   {
     icon: TrendingUp,

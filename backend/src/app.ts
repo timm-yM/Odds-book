@@ -24,10 +24,11 @@ app.use(morgan(isProd ? 'combined' : 'dev'));
 const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 app.use('/api', apiLimiter);
 
-app.use(express.json({ limit: '1mb' }));
+// 8mb: betslip images are sent as compressed base64 data URLs when a pick is created
+app.use(express.json({ limit: '8mb' }));
 app.use(cookieParser());
 
-// Pay Hero payment callback (secured with a secret token in the URL)
+// Payment webhook (secured with a secret token in the URL)
 app.use('/api/payments', paymentRoutes);
 
 app.use('/api', apiRouter);

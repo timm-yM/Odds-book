@@ -1,3 +1,4 @@
+import { pickTitle } from '@/lib/pick';
 import { OddsPick } from '@/types';
 import { StatusChip } from '@/components/common/StatusChip';
 
@@ -11,7 +12,7 @@ export function PicksTicker({ picks }: { picks: OddsPick[] }) {
         {items.map((p, i) => (
           <div key={`${p._id}-${i}`} className="flex shrink-0 items-center gap-2 text-sm">
             <span className="font-medium text-muted-foreground">
-              {p.homeTeam} <span className="text-border">vs</span> {p.awayTeam}
+              {pickTitle(p)}
             </span>
             <span className="odds-figure text-primary">{p.odds.toFixed(2)}</span>
             <StatusChip status={p.status} />

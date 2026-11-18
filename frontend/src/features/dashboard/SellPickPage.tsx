@@ -9,13 +9,13 @@ export function SellPickPage() {
     <div className="container max-w-2xl py-10">
       <h1 className="text-2xl font-bold">Sell a pick</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        List your analysis on the marketplace. Set the price to $0 to give it away free, or price it to sell — ODDSBOOK
+        List your analysis on the marketplace. Set the price to KES 0 to give it away free, or price it to sell — ODDSBOOK
         takes a small platform fee only when a paid pick sells.
       </p>
 
       <div className="surface-card mt-6 flex gap-3 p-4 text-sm text-muted-foreground">
         <Info size={16} className="mt-0.5 shrink-0 text-primary" />
-        <p>The selection and analysis stay hidden from buyers until they unlock the pick — free picks unlock instantly for anyone.</p>
+        <p>The booking code, slip images, selection and analysis stay hidden until a buyer unlocks the pick. Buyers pay with M-Pesa; free picks unlock instantly.</p>
       </div>
 
       <div className="surface-card mt-6 p-6">

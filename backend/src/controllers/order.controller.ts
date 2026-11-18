@@ -5,8 +5,8 @@ import { Order } from '../models/Order';
 import { User } from '../models/User';
 import { ApiError } from '../utils/ApiError';
 import { asyncHandler } from '../utils/asyncHandler';
-import { env, isPayHeroEnabled } from '../config/env';
-import { initiateStkPush, normalizeKenyanPhone } from '../services/payhero.service';
+import { env, isPaymentsEnabled } from '../config/env';
+import { startPayment, normalizeKenyanPhone } from '../services/payment.service';
 import { reconcileOrder } from '../services/order.service';
 
 const checkoutSchema = z.object({
@@ -23,9 +23,9 @@ function computeSplit(amount: number) {
 /**
  * Starts (or instantly completes) a purchase for a pick.
  * - Free picks: completed immediately, no payment involved.
- * - Paid picks with Pay Hero configured: creates a pending order and sends an M-Pesa STK Push to the
+ * - Paid picks with a payment provider configured: creates a pending order and sends an M-Pesa STK Push to the
  *   buyer's phone. The frontend then polls GET /orders/:id/status until it flips to completed/failed.
- * - Paid picks without Pay Hero keys (demo mode): completed immediately so the app is testable out of the box.
+ * - Paid picks without payment keys (demo mode): completed immediately so the app is testable out of the box.
  */
 export const checkout = asyncHandler(async (req: Request, res: Response) => {
   const { pickId, phoneNumber } = checkoutSchema.parse(req.body);
@@ -67,8 +67,8 @@ export const checkout = asyncHandler(async (req: Request, res: Response) => {
 
   const { platformFee, sellerPayout } = computeSplit(pick.price);
 
-  // ---- Paid pick via M-Pesa (Pay Hero) ----
-  if (isPayHeroEnabled) {
+  // ---- Paid pick via M-Pesa (PesaFlux / Pay Hero) ----
+  if (isPaymentsEnabled) {
     if (existing?.status === 'pending' && existing.updatedAt.getTime() > Date.now() - 60_000) {
       // A prompt was sent <1 min ago - don't spam the customer's phone, just keep waiting on it.
       return res.status(200).json({ success: true, data: { pending: true, orderId: String(existing._id) } });
@@ -100,20 +100,21 @@ export const checkout = asyncHandler(async (req: Request, res: Response) => {
     order.phoneNumber = phone;
     order.failureReason = undefined;
 
-    const stk = await initiateStkPush({
+    const stk = await startPayment({
       amount: pick.price,
       phoneNumber: phone,
-      externalReference: String(order._id),
+      orderId: String(order._id),
       customerName: req.user!.name,
     });
-    order.payheroReference = stk.reference;
+    order.paymentProvider = stk.provider;
+    order.paymentReference = stk.reference;
     order.checkoutRequestId = stk.checkoutRequestId;
     await order.save();
 
     return res.status(200).json({ success: true, data: { pending: true, orderId: String(order._id) } });
   }
 
-  // ---- Demo mode: no Pay Hero keys configured, complete immediately ----
+  // ---- Demo mode: no payment keys configured, complete immediately ----
   const order =
     existing ??
     (await Order.create({
@@ -142,7 +143,7 @@ export const checkout = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ success: true, data: { pending: false, order, demoMode: true } });
 });
 
-/** Polled by the frontend after an STK push. Re-checks with Pay Hero while the order is still pending. */
+/** Polled by the frontend after an STK push. Re-checks with the payment provider while the order is still pending. */
 export const orderStatus = asyncHandler(async (req: Request, res: Response) => {
   const order = await Order.findOne({ _id: req.params.id, buyer: req.user!._id });
   if (!order) throw ApiError.notFound('Order not found');

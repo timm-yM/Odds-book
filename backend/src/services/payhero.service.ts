@@ -59,7 +59,7 @@ export async function initiateStkPush(params: {
   externalReference: string;
   customerName?: string;
 }): Promise<StkPushResult> {
-  const callbackUrl = `${env.apiUrl}/api/payments/payhero/callback?token=${encodeURIComponent(env.payheroCallbackSecret)}`;
+  const callbackUrl = `${env.apiUrl}/api/payments/webhook?token=${encodeURIComponent(env.paymentWebhookSecret)}`;
 
   const data = await payheroFetch<{ success?: boolean; reference?: string; CheckoutRequestID?: string }>(
     '/api/v2/payments',

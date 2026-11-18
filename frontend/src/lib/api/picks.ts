@@ -11,14 +11,20 @@ export interface PickFilters {
 }
 
 export interface PickInput {
+  pickType?: 'single' | 'slip';
+  title?: string;
   sport: string;
-  league: string;
-  homeTeam: string;
-  awayTeam: string;
+  league?: string;
+  homeTeam?: string;
+  awayTeam?: string;
   matchDate: string;
-  market: string;
-  selection: string;
+  market?: string;
+  selection?: string;
   odds: number;
+  bookmaker?: string;
+  bookingCode?: string;
+  /** JPG/PNG data URLs (create only) */
+  images?: string[];
   confidence?: number;
   analysis?: string;
   price: number;
@@ -31,6 +37,10 @@ export const picksApi = {
 
   get: (id: string) =>
     apiClient.get<ApiResponse<{ pick: OddsPick; reviews: Review[] }>>(`/picks/${id}`).then((r) => r.data.data),
+
+  /** Fetches a paywalled slip image with the user's token and returns a local blob URL for <img src> */
+  image: (pickId: string, index: number) =>
+    apiClient.get<Blob>(`/picks/${pickId}/images/${index}`, { responseType: 'blob' }).then((r) => URL.createObjectURL(r.data)),
 
   mine: () => apiClient.get<ApiResponse<OddsPick[]>>('/picks/mine').then((r) => r.data.data),
 

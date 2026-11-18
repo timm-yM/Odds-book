@@ -7,6 +7,7 @@ import { StarRating } from '@/components/common/StarRating';
 import { StatusChip } from '@/components/common/StatusChip';
 import { PriceTag } from '@/components/common/PriceTag';
 import { SportTag } from '@/components/common/SportTag';
+import { pickTitle, pickLabel, pickLeague } from '@/lib/pick';
 
 export function PickCard({ pick }: { pick: OddsPick }) {
   const seller = typeof pick.seller === 'string' ? null : pick.seller;
@@ -20,23 +21,23 @@ export function PickCard({ pick }: { pick: OddsPick }) {
 
       <div className="mb-1 flex items-center justify-between gap-2">
         <p className="truncate font-display text-base font-semibold">
-          {pick.homeTeam} <span className="text-muted-foreground">vs</span> {pick.awayTeam}
+          {pickTitle(pick)}
         </p>
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        {pick.league} · {format(new Date(pick.matchDate), 'MMM d, HH:mm')}
+        {pickLeague(pick)} · {format(new Date(pick.matchDate), 'MMM d, HH:mm')}
       </p>
 
       <div className="mb-4 flex items-center justify-between rounded-md border border-border bg-surface-2 px-3 py-2">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{pick.market}</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{pickLabel(pick)}</p>
           <p className="flex items-center gap-1.5 text-sm font-medium">
             {pick.locked ? (
               <>
                 <Lock size={12} className="text-muted-foreground" /> Locked pick
               </>
             ) : (
-              pick.selection
+              pick.selection || (pick.bookingCode ? `Code: ${pick.bookingCode}` : 'Slip unlocked')
             )}
           </p>
         </div>

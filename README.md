@@ -19,7 +19,7 @@ oddsbook/
 | Layer     | Tech |
 |-----------|------|
 | Frontend  | React 18, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Axios |
-| Backend   | Node.js, Express, TypeScript, Mongoose (MongoDB), JWT auth, Zod validation, Pay Hero M-Pesa STK Push (optional) |
+| Backend   | Node.js, Express, TypeScript, Mongoose (MongoDB), JWT auth, Zod validation, M-Pesa STK Push via PesaFlux or Pay Hero (optional) |
 | Database  | MongoDB (local or Atlas) |
 | Deploy    | Frontend → Vercel · Backend → Render |
 
@@ -31,9 +31,9 @@ oddsbook/
   picks (`price: 0`) are never locked.
 - Buying calls `POST /api/orders/checkout`:
   - **Free pick** → instantly completed, no payment.
-  - **Paid pick, Pay Hero configured** → sends an M-Pesa STK Push to the buyer's phone;
-    the order unlocks when Pay Hero confirms payment.
-  - **Paid pick, no Pay Hero keys set** → completes instantly ("demo mode") so
+  - **Paid pick, payment gateway configured** → sends an M-Pesa STK Push to the buyer's phone;
+    the order unlocks when the gateway confirms payment.
+  - **Paid pick, no gateway keys set** → completes instantly ("demo mode") so
     you can test the full buy flow before wiring up real payments.
 - The user whose email/password match `ADMIN_EMAIL`/`ADMIN_PASSWORD` (seeded via
   `npm run seed:admin`) has `role: "admin"`. Their picks are automatically
@@ -78,8 +78,8 @@ the header dropdown.
 | `MONGO_URI` | MongoDB connection string (local or Atlas) |
 | `JWT_SECRET` | Long random string used to sign auth tokens |
 | `CLIENT_URL` | Frontend origin — used for CORS |
-| `API_URL` | Public URL of the API (Pay Hero posts callbacks here) |
-| `PAYHERO_API_USERNAME` / `PAYHERO_API_PASSWORD` / `PAYHERO_CHANNEL_ID` / `PAYHERO_CALLBACK_SECRET` | Optional — leave blank to run paid checkout in demo/instant-unlock mode |
+| `API_URL` | Public URL of the API |
+| `PAYMENT_PROVIDER`, `PESAFLUX_API_KEY`, `PESAFLUX_EMAIL`, `PAYMENT_WEBHOOK_SECRET` (or the `PAYHERO_*` set) | Optional — leave blank to run paid checkout in demo/instant-unlock mode |
 | `PLATFORM_FEE_PERCENT` | % ODDSBOOK keeps from each paid sale |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` | Used only by `npm run seed:admin` |
 

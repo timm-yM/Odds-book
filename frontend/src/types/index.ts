@@ -21,6 +21,9 @@ export interface OddsPick {
   _id: string;
   seller: SellerSummary | string;
   isOfficial: boolean;
+  /** 'slip' = betslip/accumulator posted as images and/or a booking code. Missing on old picks = 'single'. */
+  pickType?: 'single' | 'slip';
+  title?: string;
   sport: string;
   league: string;
   homeTeam: string;
@@ -29,6 +32,10 @@ export interface OddsPick {
   market: string;
   selection: string | null;
   odds: number;
+  bookmaker?: string;
+  /** null while the pick is locked */
+  bookingCode?: string | null;
+  imageCount?: number;
   confidence: number;
   analysis: string | null;
   price: number;
@@ -81,5 +88,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
 }
+
+export const BOOKMAKERS = ['SportPesa', 'Betika', 'SportyBet', 'Odibets', 'Mozzart Bet', '1xBet', 'Betway'];
 
 export const SPORTS = ['Football', 'Basketball', 'Tennis', 'Rugby', 'Cricket', 'American Football', 'Boxing/MMA', 'Other'];

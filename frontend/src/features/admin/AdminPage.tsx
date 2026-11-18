@@ -1,3 +1,4 @@
+import { pickTitle, pickLeague } from '@/lib/pick';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ShieldCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -41,7 +42,7 @@ export function AdminPage() {
         </span>
       </div>
       <h1 className="text-2xl font-bold">Admin Panel</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Post your official ODDSBOOK picks and moderate the marketplace.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Post official slips (images + booking code), set free or paid, and moderate the marketplace.</p>
 
       <Tabs defaultValue="post" className="mt-6">
         <TabsList>
@@ -52,7 +53,7 @@ export function AdminPage() {
 
         <TabsContent value="post" className="pt-6">
           <div className="surface-card max-w-2xl p-6">
-            <CreatePickForm onCreated={refresh} />
+            <CreatePickForm onCreated={() => { refresh(); toast.info('Posted! Mark it Won/Lost later from "My official picks".'); }} />
           </div>
         </TabsContent>
 
@@ -81,10 +82,10 @@ export function AdminPage() {
                   <div key={p._id} className="flex flex-wrap items-center justify-between gap-3 p-3">
                     <div>
                       <p className="font-medium">
-                        {p.homeTeam} vs {p.awayTeam}
+                        {pickTitle(p)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {seller?.name ?? 'Unknown seller'} · {p.league} · {p.purchaseCount} sold
+                        {seller?.name ?? 'Unknown seller'} · {pickLeague(p)} · {p.purchaseCount} sold
                       </p>
                     </div>
                     <div className="flex items-center gap-3">

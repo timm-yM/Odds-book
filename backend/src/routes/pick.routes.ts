@@ -7,6 +7,7 @@ import {
   updatePickStatus,
   deletePick,
   myPicks,
+  getPickImage,
 } from '../controllers/pick.controller';
 import { createReview } from '../controllers/review.controller';
 import { protect, attachUserIfPresent } from '../middleware/auth';
@@ -16,6 +17,7 @@ const router = Router();
 router.get('/', attachUserIfPresent, listPicks);
 router.get('/mine', protect, myPicks);
 router.get('/:id', attachUserIfPresent, getPick);
+router.get('/:id/images/:index', attachUserIfPresent, getPickImage);
 
 router.post('/', protect, createPick);
 router.patch('/:id', protect, updatePick);

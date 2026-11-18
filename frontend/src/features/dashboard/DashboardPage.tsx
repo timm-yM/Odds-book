@@ -1,3 +1,4 @@
+import { pickTitle, pickLabel } from '@/lib/pick';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus } from 'lucide-react';
@@ -56,9 +57,9 @@ export function DashboardPage() {
                 <Link key={o._id} to={`/picks/${o.pick._id}`} className="flex items-center justify-between gap-4 p-3 hover:bg-surface-2">
                   <div>
                     <p className="font-medium">
-                      {o.pick.homeTeam} vs {o.pick.awayTeam}
+                      {pickTitle(o.pick)}
                     </p>
-                    <p className="text-xs text-muted-foreground">{o.pick.market} · odds {o.pick.odds.toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground">{pickLabel(o.pick)} · odds {o.pick.odds.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusChip status={o.pick.status} />
@@ -109,7 +110,7 @@ export function DashboardPage() {
                     <div key={o._id} className="flex items-center justify-between p-3">
                       <div>
                         <p className="font-medium">
-                          {o.pick.homeTeam} vs {o.pick.awayTeam}
+                          {pickTitle(o.pick)}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Bought by {typeof o.buyer === 'string' ? 'a buyer' : o.buyer.name}

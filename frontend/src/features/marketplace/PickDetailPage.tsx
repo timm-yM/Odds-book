@@ -15,6 +15,8 @@ import { StarRating } from '@/components/common/StarRating';
 import { StatusChip } from '@/components/common/StatusChip';
 import { PriceTag, formatKES } from '@/components/common/PriceTag';
 import { MpesaPayModal } from './components/MpesaPayModal';
+import { SlipImages } from './components/SlipImages';
+import { pickTitle, pickLabel, pickLeague, isSlip } from '@/lib/pick';
 import { SportTag } from '@/components/common/SportTag';
 
 export function PickDetailPage() {
@@ -100,17 +102,17 @@ export function PickDetailPage() {
       </div>
 
       <h1 className="text-2xl font-bold md:text-3xl">
-        {pick.homeTeam} <span className="text-muted-foreground">vs</span> {pick.awayTeam}
+        {pickTitle(pick)}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        {pick.league} · {format(new Date(pick.matchDate), 'EEEE MMM d, yyyy · HH:mm')}
+        {pickLeague(pick)} · {format(new Date(pick.matchDate), 'EEEE MMM d, yyyy · HH:mm')}
       </p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <div className="surface-card p-6">
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{pick.market}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{pickLabel(pick)}</p>
               <span className="odds-figure text-2xl text-primary">{pick.odds.toFixed(2)}</span>
             </div>
 
@@ -120,8 +122,18 @@ export function PickDetailPage() {
                 <div>
                   <p className="font-display text-lg font-semibold">This pick is locked</p>
                   <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                    Unlock the selection and full analysis for <PriceTag price={pick.price} currency={pick.currency} />.
+                    Unlock {isSlip(pick) ? 'the booking code, slip images' : 'the selection'} and full analysis for{' '}
+                    <PriceTag price={pick.price} currency={pick.currency} />.
                   </p>
+                  <ul className="mx-auto mt-3 flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
+                    {pick.bookmaker && <li className="rounded-full border border-border px-2.5 py-1">{pick.bookmaker} code</li>}
+                    {(pick.imageCount ?? 0) > 0 && (
+                      <li className="rounded-full border border-border px-2.5 py-1">
+                        {pick.imageCount} slip image{pick.imageCount === 1 ? '' : 's'}
+                      </li>
+                    )}
+                    <li className="rounded-full border border-border px-2.5 py-1">Pay with M-Pesa</li>
+                  </ul>
                 </div>
                 <Button size="lg" onClick={handleBuy} disabled={buying}>
                   {buying ? 'Processing…' : `Unlock with M-Pesa · ${formatKES(pick.price)}`}
@@ -129,11 +141,43 @@ export function PickDetailPage() {
               </div>
             ) : (
               <div>
-                <p className="mb-4 rounded-md bg-primary/10 px-4 py-3 font-display text-lg font-semibold text-primary">
-                  {pick.selection}
-                </p>
+                {pick.selection && (
+                  <p className="mb-4 rounded-md bg-primary/10 px-4 py-3 font-display text-lg font-semibold text-primary">{pick.selection}</p>
+                )}
+                {pick.bookingCode && (
+                  <div className="mb-4 rounded-md border border-primary/40 bg-primary/10 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {pick.bookmaker ? `${pick.bookmaker} booking code` : 'Booking code'}
+                    </p>
+                    <div className="mt-1 flex items-center justify-between gap-3">
+                      <span className="font-mono text-2xl font-bold tracking-widest text-primary">{pick.bookingCode}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard
+                            ?.writeText(pick.bookingCode ?? '')
+                            .then(() => toast.success('Code copied'))
+                            .catch(() => toast.error('Could not copy — select the code and copy it manually'));
+                        }}
+                      >
+                        Copy code
+                      </Button>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Open {pick.bookmaker ?? 'your bookmaker'}, tap "Load / Enter booking code" on the betslip, paste this, then set your own stake.
+                    </p>
+                  </div>
+                )}
+                {(pick.imageCount ?? 0) > 0 && (
+                  <div className="mb-4">
+                    <SlipImages pickId={pick._id} count={pick.imageCount ?? 0} />
+                  </div>
+                )}
                 {pick.analysis && <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{pick.analysis}</p>}
-                {!pick.analysis && <p className="text-sm text-muted-foreground">No written analysis for this pick.</p>}
+                {!pick.analysis && !pick.bookingCode && !(pick.imageCount ?? 0) && (
+                  <p className="text-sm text-muted-foreground">No written analysis for this pick.</p>
+                )}
                 {pick.price === 0 && !isOwner && (
                   <Button className="mt-5" variant="outline" onClick={handleBuy} disabled={buying}>
                     {buying ? 'Saving…' : 'Save to my picks'}
@@ -215,7 +259,7 @@ export function PickDetailPage() {
         open={payOpen}
         pickId={pick._id}
         amount={pick.price}
-        title={`${pick.homeTeam} vs ${pick.awayTeam} · ${pick.market}`}
+        title={`${pickTitle(pick)} · ${pickLabel(pick)}`}
         onClose={() => setPayOpen(false)}
         onPaid={() => {
           setPayOpen(false);

@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { payheroCallback } from '../controllers/payment.controller';
+import { paymentWebhook } from '../controllers/payment.controller';
 
 const router = Router();
 
-router.post('/payhero/callback', payheroCallback);
+// Set this full URL (with ?token=YOUR_SECRET) as the webhook in your PesaFlux dashboard
+router.post('/webhook', paymentWebhook);
 
 export default router;

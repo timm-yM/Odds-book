@@ -15,7 +15,8 @@ export interface IOrder extends Document {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   phoneNumber?: string;
-  payheroReference?: string;
+  paymentProvider?: 'pesaflux' | 'payhero';
+  paymentReference?: string;
   checkoutRequestId?: string;
   mpesaReceipt?: string;
   failureReason?: string;
@@ -35,7 +36,8 @@ const orderSchema = new Schema<IOrder>(
     status: { type: String, enum: ['completed', 'pending', 'failed', 'refunded'], default: 'pending' },
     paymentMethod: { type: String, enum: ['free', 'mpesa', 'manual'], required: true },
     phoneNumber: { type: String },
-    payheroReference: { type: String, index: true },
+    paymentProvider: { type: String, enum: ['pesaflux', 'payhero'] },
+    paymentReference: { type: String, index: true },
     checkoutRequestId: { type: String },
     mpesaReceipt: { type: String },
     failureReason: { type: String },

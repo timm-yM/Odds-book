@@ -1,7 +1,7 @@
 import { Order, IOrder } from '../models/Order';
 import { Pick } from '../models/Pick';
 import { User } from '../models/User';
-import { getTransactionStatus } from './payhero.service';
+import { checkPayment } from './payment.service';
 
 /** Marks a pending order completed exactly once (safe if callback + polling race each other). */
 async function completeOrder(orderId: string, mpesaReceipt?: string): Promise<IOrder | null> {
@@ -22,12 +22,20 @@ async function failOrder(orderId: string, reason: string): Promise<IOrder | null
   return Order.findById(orderId);
 }
 
-/** Asks Pay Hero for the real result of a pending order and updates it. Returns the fresh order. */
+/** Asks the payment provider for the real result of a pending order and updates it. Returns the fresh order. */
 export async function reconcileOrder(order: IOrder): Promise<IOrder> {
-  if (order.status !== 'pending' || order.paymentMethod !== 'mpesa' || !order.payheroReference) return order;
+  if (order.status !== 'pending' || order.paymentMethod !== 'mpesa' || !order.paymentReference) return order;
 
-  const result = await getTransactionStatus(order.payheroReference);
-  if (result.status === 'SUCCESS') return (await completeOrder(String(order._id), result.mpesaReceipt)) ?? order;
+  const result = await checkPayment(order.paymentProvider ?? 'pesaflux', order.paymentReference);
+
+  if (result.status === 'SUCCESS') {
+    // Never unlock for less than the price (guards against a mismatched/replayed reference).
+    if (result.amount !== undefined && result.amount < order.amount) {
+      console.error('[payment] amount mismatch', String(order._id), result.amount, order.amount);
+      return order;
+    }
+    return (await completeOrder(String(order._id), result.receipt)) ?? order;
+  }
   if (result.status === 'FAILED') return (await failOrder(String(order._id), 'Payment was cancelled or failed')) ?? order;
   return order;
 }

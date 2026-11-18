@@ -1,3 +1,4 @@
+import { pickTitle, pickLabel, pickLeague } from '@/lib/pick';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -44,10 +45,10 @@ export function MyPickRow({ pick, onChanged }: { pick: OddsPick; onChanged: () =
     <div className="flex flex-col gap-3 border-b border-border py-4 last:border-0 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <Link to={`/picks/${pick._id}`} className="font-medium hover:text-primary">
-          {pick.homeTeam} vs {pick.awayTeam}
+          {pickTitle(pick)}
         </Link>
         <p className="text-xs text-muted-foreground">
-          {pick.league} · {format(new Date(pick.matchDate), 'MMM d, yyyy')} · {pick.market} · odds {pick.odds.toFixed(2)} ·{' '}
+          {pickLeague(pick)} · {format(new Date(pick.matchDate), 'MMM d, yyyy')} · {pickLabel(pick)} · odds {pick.odds.toFixed(2)} ·{' '}
           {pick.purchaseCount} sold
         </p>
       </div>

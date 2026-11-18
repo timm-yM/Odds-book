@@ -21,13 +21,13 @@ services:
         sync: false
       - key: API_URL
         sync: false
-      - key: PAYHERO_API_USERNAME
+      - key: PAYMENT_PROVIDER
+        value: pesaflux
+      - key: PESAFLUX_API_KEY
         sync: false
-      - key: PAYHERO_API_PASSWORD
+      - key: PESAFLUX_EMAIL
         sync: false
-      - key: PAYHERO_CHANNEL_ID
-        sync: false
-      - key: PAYHERO_CALLBACK_SECRET
+      - key: PAYMENT_WEBHOOK_SECRET
         generateValue: true
       - key: PLATFORM_FEE_PERCENT
         value: 15
